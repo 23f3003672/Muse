@@ -6,8 +6,10 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import ProductForm from "@/components/admin/ProductForm";
 import { notFound } from "next/navigation";
+import { use } from "react";
 
-export default function AdminEditProductPage({ params }: { params: { id: string } }) {
+export default function AdminEditProductPage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = use(params);
   const [product, setProduct] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const supabase = createClient();
@@ -17,7 +19,7 @@ export default function AdminEditProductPage({ params }: { params: { id: string 
       const { data, error } = await supabase
         .from('products')
         .select('*, product_categories(category_id), product_subcategories(subcategory_id)')
-        .eq('id', params.id)
+        .eq('id', resolvedParams.id)
         .single();
 
       if (error || !data) {
@@ -32,7 +34,7 @@ export default function AdminEditProductPage({ params }: { params: { id: string 
       setLoading(false);
     }
     fetchProduct();
-  }, [params.id]);
+  }, [resolvedParams.id]);
 
   if (!loading && !product) {
     return (

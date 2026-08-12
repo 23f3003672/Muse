@@ -5,8 +5,10 @@ import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import ProductForm from "@/components/admin/ProductForm";
 import { createClient } from "@/lib/supabase/client";
+import { use } from "react";
 
-export default function AdminEditSuitPage({ params }: { params: { id: string } }) {
+export default function AdminEditSuitPage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = use(params);
   const [initialData, setInitialData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const supabase = createClient();
@@ -16,7 +18,7 @@ export default function AdminEditSuitPage({ params }: { params: { id: string } }
       const { data, error } = await supabase
         .from('products')
         .select('*, product_categories(category_id), product_subcategories(subcategory_id)')
-        .eq('id', params.id)
+        .eq('id', resolvedParams.id)
         .single();
 
       if (data) {
@@ -28,7 +30,7 @@ export default function AdminEditSuitPage({ params }: { params: { id: string } }
       setLoading(false);
     }
     fetchSuit();
-  }, [params.id, supabase]);
+  }, [resolvedParams.id, supabase]);
 
   if (loading) {
     return <div className="p-8 text-center text-foreground/50 animate-pulse">Loading suit details...</div>;

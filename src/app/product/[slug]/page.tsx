@@ -4,8 +4,9 @@ import ProductDetailClient from "./ProductDetailClient";
 import ProductGridSection from "@/components/home/ProductGridSection";
 import PageHeader from "@/components/ui/PageHeader";
 
-export default async function ProductDetailPage({ params }: { params: { slug: string } }) {
-  const product = await getProductBySlug(params.slug);
+export default async function ProductDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+  const resolvedParams = await params;
+  const product = await getProductBySlug(resolvedParams.slug);
 
   if (!product) {
     notFound();

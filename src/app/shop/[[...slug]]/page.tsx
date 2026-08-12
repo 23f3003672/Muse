@@ -2,8 +2,9 @@ import { getProducts, getCategories } from "@/lib/data";
 import PageHeader from "@/components/ui/PageHeader";
 import ShopClientSideFilter from "../ShopClientSideFilter";
 
-export default async function ShopPage({ params }: { params: { slug?: string[] } }) {
-  const slug = params.slug || [];
+export default async function ShopPage({ params }: { params: Promise<{ slug?: string[] }> }) {
+  const resolvedParams = await params;
+  const slug = resolvedParams.slug || [];
   const categoryParam = slug[0] || "all";
   const subcategoryParam = slug[1] || "";
 
