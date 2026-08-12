@@ -1,42 +1,29 @@
-import Link from "next/link";
 import PageHeader from "@/components/ui/PageHeader";
-
-const collections = [
-  { id: "1", name: "Bridal Bliss", slug: "bridal-bliss" },
-  { id: "2", name: "Everyday Edit", slug: "everyday-edit" },
-  { id: "3", name: "Festive Radiance", slug: "festive-radiance" },
-  { id: "4", name: "The Minimal Line", slug: "the-minimal-line" },
-];
+import Link from "next/link";
 
 export default function CollectionsPage() {
   return (
     <div className="container mx-auto px-4 md:px-8 py-12 md:py-16">
       <PageHeader 
         title="Our Collections" 
-        subtitle="Curated edits for every chapter of your story—from the everyday glow to the grandest celebrations."
+        subtitle="Curated edits for every chapter of your story."
         breadcrumbs={[
           { label: "Home", href: "/" },
           { label: "Collections", href: "/collections" }
         ]} 
       />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto mt-12">
-        {collections.map((collection) => (
-          <Link 
-            key={collection.id} 
-            href={`/collections/${collection.slug}`} 
-            className="group block relative aspect-video md:aspect-[4/3] bg-muted rounded-md overflow-hidden"
-          >
-            <div className="absolute inset-0 bg-[#e4dcd3] flex items-center justify-center text-muted-foreground transition-transform duration-700 group-hover:scale-105">
-               <span className="font-serif opacity-50 text-xl tracking-wider">{collection.name} Image</span>
-            </div>
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
-            <div className="absolute bottom-8 left-8 right-8">
-              <h3 className="font-serif text-3xl text-white mb-2 tracking-wide">{collection.name}</h3>
-              <p className="text-white/80 text-sm underline underline-offset-4 decoration-white/50 group-hover:decoration-white transition-colors uppercase tracking-widest text-xs">Explore Collection</p>
-            </div>
-          </Link>
-        ))}
+      <div className="flex flex-col items-center justify-center text-center py-24 md:py-32 border-t border-border mt-8">
+        <h2 className="font-serif text-3xl md:text-4xl text-heading mb-6 tracking-wide">
+          Coming Soon
+        </h2>
+        <p className="text-foreground/70 max-w-md mx-auto text-base md:text-lg leading-relaxed mb-10">
+          We are currently curating beautiful collections for you. Check back shortly!
+        </p>
+        <div className="w-16 h-[1px] bg-border mx-auto mb-10"></div>
+        <Link href="/shop" className="px-8 py-3 bg-primary text-primary-foreground text-xs font-bold tracking-widest uppercase rounded-full hover:bg-primary-hover transition-colors">
+          Shop All Jewelry
+        </Link>
       </div>
     </div>
   );
