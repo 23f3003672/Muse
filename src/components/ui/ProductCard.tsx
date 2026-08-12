@@ -16,7 +16,7 @@ export default function ProductCard({ id, name, price, originalPrice, image, bad
     <div className="group relative flex flex-col gap-4">
       <Link href={`/product/${slug}`} className="block relative aspect-[4/5] overflow-hidden rounded-md bg-muted">
         {image ? (
-          <Image src={image} alt={name} fill className="object-cover transition-transform duration-500 group-hover:scale-105" />
+          <Image src={image} alt={name} fill sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw" className="object-cover transition-transform duration-500 group-hover:scale-105" />
         ) : (
           <div className="absolute inset-0 bg-muted flex items-center justify-center text-muted-foreground transition-transform duration-500 group-hover:scale-105">
              <span className="text-xs">Image Placeholder</span>

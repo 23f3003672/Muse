@@ -3,12 +3,14 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Star, Plus, Minus, MessageCircle, ChevronDown, ChevronUp } from "lucide-react";
+import Image from "next/image";
 import { useCartStore } from "@/store/cartStore";
 
 export default function ProductDetailClient({ product }: { product: any }) {
   const [selectedVariant, setSelectedVariant] = useState(product.variants[0]?.options[0] || "Standard");
   const [quantity, setQuantity] = useState(1);
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
+  const [selectedImage, setSelectedImage] = useState(product.images[0] || "");
   
   const cartStore = useCartStore();
 
@@ -45,14 +47,26 @@ export default function ProductDetailClient({ product }: { product: any }) {
         {/* Left: Image Gallery */}
         <div className="flex flex-col-reverse md:flex-row gap-4">
           <div className="flex md:flex-col gap-4 overflow-x-auto md:overflow-y-auto hide-scrollbar w-full md:w-20 lg:w-24 shrink-0">
-            {product.images.map((_: any, idx: number) => (
-              <button key={idx} className="aspect-[4/5] w-20 md:w-full bg-[#f0eae1] rounded-sm shrink-0 border border-transparent hover:border-primary transition-colors focus:outline-none focus:border-primary flex items-center justify-center">
-                <span className="text-[8px] text-foreground/40 font-serif">Img {idx+1}</span>
+            {product.images.map((img: string, idx: number) => (
+              <button 
+                key={idx} 
+                onClick={() => setSelectedImage(img)}
+                className={`aspect-[4/5] w-20 md:w-full bg-muted rounded-sm shrink-0 border transition-colors focus:outline-none relative overflow-hidden ${selectedImage === img ? 'border-primary' : 'border-transparent hover:border-primary/50'}`}
+              >
+                {img ? (
+                  <Image src={img} alt={`${product.name} thumbnail ${idx + 1}`} fill sizes="96px" className="object-cover" />
+                ) : (
+                  <span className="text-[8px] text-foreground/40 font-serif flex items-center justify-center w-full h-full">Img {idx+1}</span>
+                )}
               </button>
             ))}
           </div>
-          <div className="flex-1 aspect-[4/5] bg-[#f0eae1] rounded-md relative flex items-center justify-center">
-             <span className="text-muted-foreground/50 font-serif text-lg tracking-widest">Main Image</span>
+          <div className="flex-1 aspect-[4/5] bg-muted rounded-md relative flex items-center justify-center overflow-hidden">
+             {selectedImage ? (
+               <Image src={selectedImage} alt={product.name} fill priority sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" />
+             ) : (
+               <span className="text-muted-foreground/50 font-serif text-lg tracking-widest">Main Image</span>
+             )}
           </div>
         </div>
 
