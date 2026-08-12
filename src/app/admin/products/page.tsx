@@ -1,0 +1,147 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { createClient } from "@/lib/supabase/client";
+import Link from "next/link";
+import { Plus, Edit, Trash2, Search, MoreVertical, Package } from "lucide-react";
+
+export default function AdminProductsPage() {
+  const [products, setProducts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const supabase = createClient();
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  const fetchProducts = async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from('products')
+      .select('id, product_name, sku, price, stock_quantity, availability')
+      .eq('product_type', 'jewelry')
+      .order('created_at', { ascending: false });
+      
+    if (data) {
+      setProducts(data);
+    }
+    setLoading(false);
+  };
+
+  const handleDelete = async (id: string) => {
+    if (confirm("Are you sure you want to delete this product?")) {
+      await supabase.from('products').delete().eq('id', id);
+      fetchProducts();
+    }
+  };
+
+  const filteredProducts = products.filter(p => 
+    p.product_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    p.sku.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  return (
+    <div className="space-y-8">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="font-serif text-3xl text-heading mb-1">Products</h1>
+          <p className="text-sm text-foreground/70">Manage your jewelry inventory.</p>
+        </div>
+        <Link 
+          href="/admin/products/new" 
+          className="flex items-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground text-xs font-bold tracking-wider rounded-full hover:bg-primary-hover transition-colors uppercase shadow-sm"
+        >
+          <Plus className="w-4 h-4" />
+          Add Product
+        </Link>
+      </div>
+
+      <div className="bg-surface border border-border rounded-xl shadow-sm overflow-hidden">
+        {/* Toolbar */}
+        <div className="p-4 border-b border-border flex justify-between items-center bg-background/50">
+          <div className="relative w-full max-w-md">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/40" />
+            <input 
+              type="text" 
+              placeholder="Search by name or SKU..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-9 pr-4 py-2 text-sm bg-surface border border-border rounded-md focus:outline-none focus:border-primary transition-colors"
+            />
+          </div>
+        </div>
+
+        {/* Table */}
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-muted/50 border-b border-border text-xs uppercase tracking-widest text-foreground/60 font-semibold">
+                <th className="px-6 py-4">Product Name</th>
+                <th className="px-6 py-4">SKU</th>
+                <th className="px-6 py-4">Price</th>
+                <th className="px-6 py-4">Stock</th>
+                <th className="px-6 py-4">Status</th>
+                <th className="px-6 py-4 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {loading ? (
+                <tr>
+                  <td colSpan={6} className="px-6 py-8 text-center text-sm text-foreground/50">
+                    Loading products...
+                  </td>
+                </tr>
+              ) : filteredProducts.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="px-6 py-12 text-center">
+                    <div className="flex flex-col items-center justify-center text-foreground/50">
+                      <Package className="w-12 h-12 mb-3 stroke-[1]" />
+                      <p>No products found.</p>
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                filteredProducts.map((product) => (
+                  <tr key={product.id} className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors">
+                    <td className="px-6 py-4 font-medium text-heading">
+                      {product.product_name}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-foreground/70">{product.sku}</td>
+                    <td className="px-6 py-4 text-sm font-medium">₹{product.price.toLocaleString('en-IN')}</td>
+                    <td className="px-6 py-4 text-sm text-foreground/70">{product.stock_quantity}</td>
+                    <td className="px-6 py-4">
+                      <span className={`inline-flex items-center px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                        product.availability 
+                          ? 'bg-green-100 text-green-700 border border-green-200' 
+                          : 'bg-red-100 text-red-700 border border-red-200'
+                      }`}>
+                        {product.availability ? 'Active' : 'Draft'}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <Link 
+                          href={`/admin/products/${product.id}`}
+                          className="p-2 text-foreground/50 hover:text-primary transition-colors rounded-md hover:bg-primary/10"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </Link>
+                        <button 
+                          onClick={() => handleDelete(product.id)}
+                          className="p-2 text-foreground/50 hover:text-red-600 transition-colors rounded-md hover:bg-red-50"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}

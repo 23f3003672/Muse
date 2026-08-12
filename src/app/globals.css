@@ -1,0 +1,71 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  --color-border: #ddd2c7;
+  --color-input: #ddd2c7;
+  --color-ring: #947a61;
+  --color-background: #f8f5f2;
+  --color-foreground: #5b4b41;
+  --color-surface: var(--surface);
+
+  --color-primary: #947a61;
+  --color-primary-hover: #836a54;
+  --color-primary-foreground: #ffffff;
+
+  --color-secondary: #f4ccaf;
+  --color-secondary-hover: #e9bfa1;
+  --color-secondary-foreground: #3c3128;
+
+  --color-destructive: oklch(0.396 0.141 25.723);
+  --color-destructive-foreground: oklch(0.637 0.237 25.331);
+
+  --color-muted: #eee7e1;
+  --color-muted-foreground: #8a7a6c;
+
+  --color-accent: #f4ccaf;
+  --color-accent-foreground: #3c3128;
+
+  --color-popover: #ffffff;
+  --color-popover-foreground: #5b4b41;
+
+  --color-card: #ffffff;
+  --color-card-foreground: #5b4b41;
+
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+
+  --font-sans: var(--font-inter);
+  --font-serif: var(--font-cormorant);
+}
+
+:root {
+  --background: #f8f5f2;
+  --foreground: #5b4b41;
+  --heading: #3c3128;
+  --divider: #eee7e1;
+  --surface: #ffffff;
+  --radius: 0.5rem;
+}
+
+.dark {
+  --background: #1a1614;
+  --foreground: #e6ded8;
+  --heading: #f8f5f2;
+  --divider: #3c3128;
+  --surface: #2a2421;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground font-sans antialiased selection:bg-primary selection:text-primary-foreground;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-serif text-[color:var(--heading)];
+  }
+}

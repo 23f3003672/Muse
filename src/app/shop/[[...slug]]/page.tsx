@@ -1,0 +1,66 @@
+import { getProducts, getCategories } from "@/lib/data";
+import PageHeader from "@/components/ui/PageHeader";
+import ShopClientSideFilter from "../ShopClientSideFilter";
+
+export default async function ShopPage({ params }: { params: { slug?: string[] } }) {
+  const slug = params.slug || [];
+  const categoryParam = slug[0] || "all";
+  const subcategoryParam = slug[1] || "";
+
+  const productsData = await getProducts();
+  const categoriesData = await getCategories();
+
+  const products = productsData.map((p: any) => {
+    const pCats = p.product_categories?.map((pc: any) => pc.categories) || [];
+    const pSubcats = p.product_subcategories?.map((ps: any) => ps.subcategories) || [];
+
+    return {
+      id: p.id,
+      name: p.product_name,
+      slug: p.slug,
+      price: p.discount_price ? Math.round(p.price * (1 - p.discount_price / 100)) : p.price,
+      originalPrice: p.discount_price ? p.price : undefined,
+      badge: (p.new_arrival ? "NEW" : p.best_seller ? "BESTSELLER" : undefined) as any,
+      image: p.cover_image || "",
+      categorySlugs: pCats.map((c: any) => c?.slug).filter(Boolean),
+      subcategorySlugs: pSubcats.map((s: any) => s?.slug).filter(Boolean),
+    };
+  });
+
+  // Fetch subcategories
+  const { createClient } = require('@/lib/supabase/server');
+  const supabase = await createClient();
+  const { data: subcategoriesData } = await supabase.from('subcategories').select('*');
+
+  // Build full categories structure
+  const categoriesList = categoriesData.map((c: any) => ({
+    name: c.name,
+    slug: c.slug,
+    subcategories: subcategoriesData?.filter((sub: any) => sub.category_id === c.id).map((sub: any) => ({
+      name: sub.name,
+      slug: sub.slug
+    })) || []
+  }));
+
+  const categories = [{ name: "All", slug: "all", subcategories: [] }, ...categoriesList];
+
+  return (
+    <div className="container mx-auto px-4 md:px-8 py-12 md:py-16">
+      <PageHeader 
+        title="Shop All Jewelry" 
+        subtitle="Discover the full muse by Kashish collection."
+        breadcrumbs={[
+          { label: "Home", href: "/" },
+          { label: "Shop", href: "/shop" }
+        ]} 
+      />
+
+      <ShopClientSideFilter 
+        products={products} 
+        categories={categories} 
+        categoryParam={categoryParam}
+        subcategoryParam={subcategoryParam}
+      />
+    </div>
+  );
+}
