@@ -49,7 +49,9 @@ export async function getProductBySlug(slug: string) {
     .single();
 
   if (error) {
-    console.error("Error fetching product:", error);
+    if (error.code !== 'PGRST116') {
+      console.error("Error fetching product:", error);
+    }
     return null;
   }
   return data;
