@@ -75,8 +75,14 @@ Make sure you have Node.js installed (v20+ recommended) and a [Supabase](https:/
 - `/src/store` - Zustand state management stores
 - `/public` - Static assets and fonts
 
-## 🤝 Contributing
-Contributions, issues, and feature requests are welcome! Feel free to check the [issues page](https://github.com/23f3003672/Muse/issues).
+## ⚠️ Disclaimer & Copyright
+
+> **Note:** This repository represents a live, running e-commerce project. It is hosted here strictly for **portfolio and demonstration purposes**. 
+
+All rights, including copyright and intellectual property rights, are exclusively owned by the business owner, **MuseByKashish**. 
+
+- 🚫 You may not copy, reproduce, or distribute the code, designs, or assets.
+- 🚫 Contributions and pull requests are not being accepted for this repository.
 
 ---
-*Crafted with ❤️ for jewelry enthusiasts.*
+*Crafted with ❤️ for MuseByKashish.*
