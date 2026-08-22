@@ -84,5 +84,4 @@ All rights, including copyright and intellectual property rights, are exclusivel
 - 🚫 You may not copy, reproduce, or distribute the code, designs, or assets.
 - 🚫 Contributions and pull requests are not being accepted for this repository.
 
----
-*Crafted with ❤️ for MuseByKashish.*
+
