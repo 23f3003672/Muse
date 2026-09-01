@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
+import Image from "next/image";
 import { Plus, Edit, Trash2, Search, MoreVertical, Scissors } from "lucide-react";
 
 export default function AdminSuitsPage() {
@@ -19,7 +20,7 @@ export default function AdminSuitsPage() {
     setLoading(true);
     const { data, error } = await supabase
       .from('products')
-      .select('id, product_name, sku, price, stock_quantity, availability')
+      .select('id, product_name, sku, price, stock_quantity, availability, cover_image')
       .eq('product_type', 'suit')
       .order('created_at', { ascending: false });
       
@@ -104,8 +105,24 @@ export default function AdminSuitsPage() {
               ) : (
                 filteredSuits.map((suit) => (
                   <tr key={suit.id} className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors">
-                    <td className="px-6 py-4 font-medium text-heading">
-                      {suit.product_name}
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="relative w-10 h-10 rounded-md overflow-hidden bg-muted border border-border shrink-0">
+                          {suit.cover_image ? (
+                            <Image 
+                              src={suit.cover_image} 
+                              alt={suit.product_name} 
+                              fill 
+                              className="object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center">
+                              <Scissors className="w-4 h-4 text-foreground/40 stroke-[1.5]" />
+                            </div>
+                          )}
+                        </div>
+                        <span className="font-medium text-heading">{suit.product_name}</span>
+                      </div>
                     </td>
                     <td className="px-6 py-4 text-sm text-foreground/70">{suit.sku}</td>
                     <td className="px-6 py-4 text-sm font-medium">₹{suit.price.toLocaleString('en-IN')}</td>
