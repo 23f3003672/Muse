@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
+import Image from "next/image";
 import { Plus, Edit, Trash2, Search, MoreVertical, Package } from "lucide-react";
 
 export default function AdminProductsPage() {
@@ -19,7 +20,7 @@ export default function AdminProductsPage() {
     setLoading(true);
     const { data, error } = await supabase
       .from('products')
-      .select('id, product_name, sku, price, stock_quantity, availability')
+      .select('id, product_name, sku, price, stock_quantity, availability, cover_image')
       .eq('product_type', 'jewelry')
       .order('created_at', { ascending: false });
       
@@ -104,8 +105,24 @@ export default function AdminProductsPage() {
               ) : (
                 filteredProducts.map((product) => (
                   <tr key={product.id} className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors">
-                    <td className="px-6 py-4 font-medium text-heading">
-                      {product.product_name}
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="relative w-10 h-10 rounded-md overflow-hidden bg-muted border border-border shrink-0">
+                          {product.cover_image ? (
+                            <Image 
+                              src={product.cover_image} 
+                              alt={product.product_name} 
+                              fill 
+                              className="object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center">
+                              <Package className="w-4 h-4 text-foreground/40 stroke-[1.5]" />
+                            </div>
+                          )}
+                        </div>
+                        <span className="font-medium text-heading">{product.product_name}</span>
+                      </div>
                     </td>
                     <td className="px-6 py-4 text-sm text-foreground/70">{product.sku}</td>
                     <td className="px-6 py-4 text-sm font-medium">₹{product.price.toLocaleString('en-IN')}</td>
