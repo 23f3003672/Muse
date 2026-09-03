@@ -51,11 +51,7 @@ export default function Footer() {
             <ul className="space-y-4">
               <li className="flex items-start gap-3">
                 <MapPin className="w-5 h-5 text-primary shrink-0" />
-                <span className="text-sm text-foreground/80">Jaipur, Rajasthan, India</span>
-              </li>
-              <li className="flex items-center gap-3">
-                <Mail className="w-5 h-5 text-primary shrink-0" />
-                <a href="mailto:hello@musebykashish.com" className="text-sm text-foreground/80 hover:text-primary transition-colors">hello@musebykashish.com</a>
+                <span className="text-sm text-foreground/80">Bareilly, Uttar Pradesh</span>
               </li>
               <li className="flex items-center gap-3">
                 <Phone className="w-5 h-5 text-primary shrink-0" />

@@ -1,5 +1,8 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { useCartStore } from "@/store/cartStore";
 
 interface ProductCardProps {
   id: string;
@@ -12,6 +15,23 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ id, name, price, originalPrice, image, badge, slug }: ProductCardProps) {
+  const cartStore = useCartStore();
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    cartStore.addItem({
+      id: `${id}-Standard`,
+      productId: id,
+      name,
+      slug,
+      price,
+      quantity: 1,
+      coverImage: image || "",
+      variant: { type: "Variant", value: "Standard" }
+    });
+  };
+
   return (
     <div className="group relative flex flex-col gap-4">
       <Link href={`/product/${slug}`} className="block relative aspect-[4/5] overflow-hidden rounded-md bg-muted">
@@ -42,7 +62,10 @@ export default function ProductCard({ id, name, price, originalPrice, image, bad
         </div>
       </div>
       
-      <button className="w-full mt-2 py-2.5 rounded-full border border-border text-xs font-medium text-heading hover:border-primary hover:text-primary transition-colors uppercase tracking-wider">
+      <button 
+        onClick={handleAddToCart}
+        className="w-full mt-2 py-2.5 rounded-full border border-border text-xs font-medium text-heading hover:border-primary hover:text-primary transition-colors uppercase tracking-wider"
+      >
         Add to Cart
       </button>
     </div>
