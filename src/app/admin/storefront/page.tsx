@@ -14,7 +14,7 @@ type Hotspot = {
 
 type Product = {
   id: string;
-  name: string;
+  product_name: string;
 };
 
 type InstagramFeedItem = {
@@ -58,7 +58,7 @@ export default function StorefrontSettingsPage() {
     setLoading(true);
     
     // Fetch products for dropdown
-    const { data: productsData } = await supabase.from('products').select('id, name').order('name');
+    const { data: productsData } = await supabase.from('products').select('id, product_name').order('product_name');
     if (productsData) setProducts(productsData);
 
     // Fetch settings
@@ -429,7 +429,7 @@ export default function StorefrontSettingsPage() {
                       >
                         <option value="">Select a product...</option>
                         {products.map(p => (
-                          <option key={p.id} value={p.id}>{p.name}</option>
+                          <option key={p.id} value={p.id}>{p.product_name}</option>
                         ))}
                       </select>
                       <button 
