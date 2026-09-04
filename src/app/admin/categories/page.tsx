@@ -141,13 +141,28 @@ export default function AdminCategoriesPage() {
     }
     
     let saveError;
+    let returnedData = null;
+    
     if (editingId) {
-      const { error } = await supabase.from('categories').update(submitData).eq('id', editingId);
+      const { data, error } = await supabase.from('categories').update(submitData).eq('id', editingId).select();
       saveError = error;
-      if (!saveError) toast.success("Category updated!");
+      if (data && data.length > 0) {
+        returnedData = data[0];
+      }
+      if (!saveError) {
+        if (!returnedData) {
+           toast.error("Update failed (possible permissions issue)");
+           setIsSaving(false);
+           return;
+        }
+        toast.success("Category updated!");
+      }
     } else {
-      const { error } = await supabase.from('categories').insert([submitData]);
+      const { data, error } = await supabase.from('categories').insert([submitData]).select();
       saveError = error;
+      if (data && data.length > 0) {
+        returnedData = data[0];
+      }
       if (!saveError) toast.success("Category created!");
     }
     
@@ -158,8 +173,17 @@ export default function AdminCategoriesPage() {
       toast.error("Failed to save category: " + saveError.message);
     } else {
       setIsModalOpen(false);
-      fetchCategories();
-      // Optionally we could use a toast here, but closing modal is usually enough feedback
+      
+      // Update local state directly to prevent stale cache issues
+      if (returnedData) {
+        if (editingId) {
+          setCategories(prev => prev.map(c => c.id === editingId ? returnedData : c).sort((a, b) => a.display_order - b.display_order));
+        } else {
+          setCategories(prev => [...prev, returnedData].sort((a, b) => a.display_order - b.display_order));
+        }
+      } else {
+        fetchCategories(); // Fallback
+      }
     }
     
     setIsSaving(false);
