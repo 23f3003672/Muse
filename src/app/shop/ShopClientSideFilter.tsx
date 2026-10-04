@@ -150,6 +150,8 @@ export default function ShopClientSideFilter({ products, categories, categoryPar
             image={product.image}
             images={product.images}
             badge={product.badge}
+            inStock={product.inStock}
+            stockQuantity={product.stockQuantity}
           />
         ))}
         {filteredProducts.length === 0 && (

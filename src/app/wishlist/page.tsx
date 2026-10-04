@@ -51,6 +51,8 @@ export default function WishlistPage() {
               price={product.price}
               originalPrice={product.originalPrice}
               image={product.image}
+              inStock={product.inStock}
+              stockQuantity={product.stockQuantity}
             />
           ))}
         </div>

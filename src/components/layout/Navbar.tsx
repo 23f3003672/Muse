@@ -40,7 +40,8 @@ export default function Navbar() {
         data.sort((a, b) => {
           const orderA = categoryOrderMap[a.slug?.toLowerCase()] ?? (a.display_order ?? 99);
           const orderB = categoryOrderMap[b.slug?.toLowerCase()] ?? (b.display_order ?? 99);
-          return orderA - orderB;
+          if (orderA !== orderB) return orderA - orderB;
+          return (a.display_order ?? 99) - (b.display_order ?? 99);
         });
         data.forEach(cat => {
           if (cat.name === "GenZ Jewelry") cat.name = "GenZ Jewellry";

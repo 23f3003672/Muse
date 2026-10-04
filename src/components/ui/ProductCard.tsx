@@ -17,9 +17,23 @@ interface ProductCardProps {
   images?: string[];
   badge?: "NEW";
   slug: string;
+  inStock?: boolean;
+  stockQuantity?: number;
 }
 
-export default function ProductCard({ id, name, price, originalPrice, image, images, badge, slug }: ProductCardProps) {
+export default function ProductCard({ 
+  id, 
+  name, 
+  price, 
+  originalPrice, 
+  image, 
+  images, 
+  badge, 
+  slug,
+  inStock,
+  stockQuantity 
+}: ProductCardProps) {
+  const isSoldOut = inStock === false || (stockQuantity !== undefined && stockQuantity <= 0);
   const [mounted, setMounted] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
@@ -55,6 +69,10 @@ export default function ProductCard({ id, name, price, originalPrice, image, ima
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    if (isSoldOut) {
+      toast.error("This piece is currently sold out.");
+      return;
+    }
     cartStore.addItem({
       id: `${id}-Standard`,
       productId: id,
@@ -90,7 +108,9 @@ export default function ProductCard({ id, name, price, originalPrice, image, ima
         slug,
         price,
         originalPrice,
-        image: primaryImage
+        image: primaryImage,
+        inStock,
+        stockQuantity
       });
       toast.wishlist({
         name,
@@ -152,11 +172,18 @@ export default function ProductCard({ id, name, price, originalPrice, image, ima
           </div>
         )}
         
-        {badge && (
-          <span className="absolute top-2 left-2 z-10 px-2 py-1 bg-secondary text-secondary-foreground text-[10px] font-bold tracking-wider rounded-sm pointer-events-none">
-            {badge}
-          </span>
-        )}
+        {/* Status Badges */}
+        <div className="absolute top-2 left-2 z-10 flex flex-col gap-1 items-start pointer-events-none">
+          {isSoldOut ? (
+            <span className="px-2.5 py-1 bg-[#1a1614]/90 text-[#f8f5f2] border border-white/15 backdrop-blur-md text-[9px] font-semibold tracking-[0.16em] uppercase rounded-full shadow-sm">
+              Sold Out
+            </span>
+          ) : badge ? (
+            <span className="px-2 py-1 bg-secondary text-secondary-foreground text-[10px] font-bold tracking-wider rounded-sm">
+              {badge}
+            </span>
+          ) : null}
+        </div>
 
         {/* Wishlist Button */}
         <button
@@ -183,12 +210,23 @@ export default function ProductCard({ id, name, price, originalPrice, image, ima
         </div>
       </div>
       
-      <button 
-        onClick={handleAddToCart}
-        className="w-full mt-auto py-2.5 rounded-full border border-border text-xs font-medium text-heading hover:border-primary hover:text-primary transition-colors uppercase tracking-wider"
-      >
-        Add to Cart
-      </button>
+      {isSoldOut ? (
+        <button 
+          type="button"
+          disabled
+          aria-disabled="true"
+          className="w-full mt-auto py-2.5 rounded-full border border-border/80 bg-muted/60 text-xs font-medium text-foreground/45 cursor-not-allowed uppercase tracking-wider select-none"
+        >
+          Sold Out
+        </button>
+      ) : (
+        <button 
+          onClick={handleAddToCart}
+          className="w-full mt-auto py-2.5 rounded-full border border-border text-xs font-medium text-heading hover:border-primary hover:text-primary transition-colors uppercase tracking-wider"
+        >
+          Add to Cart
+        </button>
+      )}
     </div>
   );
 }

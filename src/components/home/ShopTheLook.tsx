@@ -33,7 +33,7 @@ export default async function ShopTheLook() {
   if (productIds.length > 0) {
     const { data: productsData } = await supabase
       .from('products')
-      .select('id, product_name, price, discount_price, cover_image, slug')
+      .select('id, product_name, price, discount_price, cover_image, slug, stock_quantity')
       .in('id', productIds);
       
     if (productsData) {
@@ -119,7 +119,12 @@ export default async function ShopTheLook() {
                   <Link href={`/product/${item.slug}`} className="font-serif text-lg text-heading group-hover:text-primary transition-colors line-clamp-2">
                     {item.product_name}
                   </Link>
-                  <p className="text-sm font-medium text-foreground mt-1">₹{(item.discount_price ? Math.round(item.price * (1 - item.discount_price / 100)) : item.price).toLocaleString('en-IN')}</p>
+                  <div className="flex items-center gap-2 mt-1">
+                    <p className="text-sm font-medium text-foreground">₹{(item.discount_price ? Math.round(item.price * (1 - item.discount_price / 100)) : item.price).toLocaleString('en-IN')}</p>
+                    {item.stock_quantity !== undefined && item.stock_quantity <= 0 && (
+                      <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#1a1614] text-[#f8f5f2]">Sold Out</span>
+                    )}
+                  </div>
                 </div>
                 <Link href={`/product/${item.slug}`} className="w-8 h-8 rounded-full border border-border flex items-center justify-center text-foreground hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors shrink-0">
                   <Plus className="w-4 h-4" />

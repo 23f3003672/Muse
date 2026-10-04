@@ -19,9 +19,9 @@ export default async function CategoryRow() {
         </Link>
       </div>
 
-      <div className="flex items-center overflow-x-auto pb-4 pt-1 snap-x hide-scrollbar gap-5 sm:gap-6 md:gap-4 md:justify-between px-1">
+      <div className="flex items-center overflow-x-auto pb-4 pt-1 snap-x hide-scrollbar gap-5 sm:gap-6 md:gap-8 px-1">
         {categories.map((cat) => (
-          <Link key={cat.id} href={`/shop/${cat.slug}`} className="flex flex-col items-center gap-2.5 md:gap-4 group snap-start shrink-0 w-22 sm:w-28 md:w-auto md:flex-1">
+          <Link key={cat.id} href={`/shop/${cat.slug}`} className="flex flex-col items-center gap-2.5 md:gap-4 group snap-start shrink-0 w-24 sm:w-28 md:w-36 lg:w-40">
             <div className="relative w-20 h-20 sm:w-24 sm:h-24 md:w-36 md:h-36 lg:w-44 lg:h-44 rounded-full bg-[#f0eae1] border border-border/50 group-hover:border-primary transition-colors flex items-center justify-center overflow-hidden shadow-sm">
                {cat.image_url ? (
                  <Image src={cat.image_url} alt={cat.name} fill sizes="(max-width: 768px) 96px, 176px" className="object-cover" />

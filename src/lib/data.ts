@@ -77,7 +77,8 @@ export async function getCategories() {
   return [...data].sort((a, b) => {
     const orderA = categoryOrderMap[a.slug?.toLowerCase()] ?? (a.display_order ?? 99);
     const orderB = categoryOrderMap[b.slug?.toLowerCase()] ?? (b.display_order ?? 99);
-    return orderA - orderB;
+    if (orderA !== orderB) return orderA - orderB;
+    return (a.display_order ?? 99) - (b.display_order ?? 99);
   });
 }
 
@@ -86,7 +87,7 @@ export async function getSubcategories() {
   const { data, error } = await supabase
     .from('subcategories')
     .select('*')
-    .order('name', { ascending: true });
+    .order('display_order', { ascending: true });
 
   if (error) {
     console.error("Error fetching subcategories:", error);

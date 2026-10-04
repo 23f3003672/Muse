@@ -19,7 +19,9 @@ export default async function NewArrivalsPage() {
     image: p.cover_image || "",
     images: (Array.isArray(p.gallery_images) && p.gallery_images.length > 0)
       ? p.gallery_images
-      : (p.cover_image ? [p.cover_image] : [])
+      : (p.cover_image ? [p.cover_image] : []),
+    inStock: (p.stock_quantity ?? 0) > 0,
+    stockQuantity: p.stock_quantity ?? 0,
   }));
 
   return (
@@ -60,6 +62,8 @@ export default async function NewArrivalsPage() {
                 image={product.image}
                 images={product.images}
                 badge={product.badge}
+                inStock={product.inStock}
+                stockQuantity={product.stockQuantity}
               />
             ))}
           </div>

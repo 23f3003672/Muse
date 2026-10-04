@@ -4,6 +4,7 @@ import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import HideOnAdmin from "@/components/layout/HideOnAdmin";
+import TopProgressBar from "@/components/layout/TopProgressBar";
 import { Toaster } from "@/lib/toast";
 
 const cormorant = Cormorant_Garamond({
@@ -39,6 +40,7 @@ export default function RootLayout({
       className={`${cormorant.variable} ${inter.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col overflow-x-hidden">
+        <TopProgressBar />
         <HideOnAdmin>
           <Navbar />
         </HideOnAdmin>

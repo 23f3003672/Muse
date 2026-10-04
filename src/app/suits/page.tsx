@@ -17,6 +17,8 @@ export default async function SuitsPage() {
       images: (Array.isArray(p.gallery_images) && p.gallery_images.length > 0)
         ? p.gallery_images
         : (p.cover_image ? [p.cover_image] : []),
+      inStock: (p.stock_quantity ?? 0) > 0,
+      stockQuantity: p.stock_quantity ?? 0,
       categorySlugs: [], // Optionally fetch categories if suits use them
       subcategorySlugs: [],
     };

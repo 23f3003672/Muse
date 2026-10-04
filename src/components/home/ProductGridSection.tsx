@@ -33,6 +33,8 @@ export default function ProductGridSection({ title, subtitle, products, viewAllL
             image={product.image}
             images={product.images}
             badge={product.badge}
+            inStock={product.inStock}
+            stockQuantity={product.stockQuantity}
           />
         ))}
       </div>

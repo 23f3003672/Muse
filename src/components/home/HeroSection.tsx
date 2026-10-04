@@ -36,7 +36,7 @@ export default async function HeroSection() {
                 alt="Muse Fine Jewelry" 
                 fill 
                 priority 
-                sizes="100vw" 
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 45vw" 
                 className="object-contain object-top drop-shadow-[0_15px_35px_rgba(0,0,0,0.3)]" 
               />
             </div>

@@ -22,7 +22,9 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
     price: p.discount_price ? Math.round(p.price * (1 - p.discount_price / 100)) : p.price,
     originalPrice: p.discount_price ? p.price : undefined,
     badge: (p.new_arrival ? "NEW" : undefined) as any,
-    image: p.cover_image || ""
+    image: p.cover_image || "",
+    inStock: (p.stock_quantity ?? 0) > 0,
+    stockQuantity: p.stock_quantity ?? 0,
   })).filter((p: any) => p.id !== product.id).slice(0, 4);
 
   // Normalize product data for client
@@ -39,6 +41,8 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
     material: product.material || "Handcrafted brass.",
     category: product.categories?.name || "Uncategorized",
     care: product.care_instructions || "Keep away from moisture.",
+    stockQuantity: product.stock_quantity ?? 0,
+    inStock: (product.stock_quantity ?? 0) > 0,
     images: (() => {
       const list: string[] = [];
       if (product.cover_image) list.push(product.cover_image);

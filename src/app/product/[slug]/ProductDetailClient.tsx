@@ -19,6 +19,7 @@ import { useWishlistStore } from "@/store/wishlistStore";
 import toast from "@/lib/toast";
 
 export default function ProductDetailClient({ product }: { product: any }) {
+  const isSoldOut = product.inStock === false || (product.stockQuantity !== undefined && product.stockQuantity <= 0);
   const [mounted, setMounted] = useState(false);
   const hasVariants = Boolean(product.variants && product.variants.length > 0 && product.variants[0]?.options?.length > 0);
   const [selectedVariant, setSelectedVariant] = useState(hasVariants ? product.variants[0]?.options[0] : "");
@@ -49,6 +50,10 @@ export default function ProductDetailClient({ product }: { product: any }) {
   };
 
   const handleAddToCart = () => {
+    if (isSoldOut) {
+      toast.error("This piece is currently sold out.");
+      return;
+    }
     cartStore.addItem({
       id: selectedVariant ? `${product.id}-${selectedVariant}` : product.id,
       productId: product.id,
@@ -82,7 +87,9 @@ export default function ProductDetailClient({ product }: { product: any }) {
         slug: product.slug,
         price: product.price,
         originalPrice: product.originalPrice,
-        image: images[0] || ""
+        image: images[0] || "",
+        inStock: !isSoldOut,
+        stockQuantity: product.stockQuantity
       });
       toast.wishlist({
         name: product.name,
@@ -93,9 +100,16 @@ export default function ProductDetailClient({ product }: { product: any }) {
   };
 
   const handleWhatsAppOrder = () => {
-    handleAddToCart();
-    const variantNote = selectedVariant ? ` (${selectedVariant})` : '';
     const origin = typeof window !== 'undefined' ? window.location.origin : 'https://www.musebykashish.in';
+    const variantNote = selectedVariant ? ` (${selectedVariant})` : '';
+
+    if (isSoldOut) {
+      const message = `Hello muse by Kashish! I saw this piece on your website: "${product.name}"${variantNote}, but noticed it is currently sold out.\n\nCould you please let me know if it can be custom made or when it will be back in stock?\n\nLink: ${origin}/product/${product.slug}`;
+      window.open(`https://wa.me/919897110086?text=${encodeURIComponent(message)}`, '_blank');
+      return;
+    }
+
+    handleAddToCart();
     const message = `Hello, I'd like to order:\n${quantity}x ${product.name}${variantNote}\nPrice: ₹${product.price}\nLink: ${origin}/product/${product.slug}`;
     window.open(`https://wa.me/919897110086?text=${encodeURIComponent(message)}`, '_blank');
   };
@@ -142,6 +156,13 @@ export default function ProductDetailClient({ product }: { product: any }) {
 
           {/* Main Image with Manual Slider Controls */}
           <div className="flex-1 aspect-[4/5] bg-muted rounded-xl relative flex items-center justify-center overflow-hidden group border border-border/40 shadow-sm">
+            {isSoldOut && (
+              <div className="absolute top-4 left-4 z-20 pointer-events-none">
+                <span className="px-3.5 py-1.5 bg-[#1a1614]/90 text-[#f8f5f2] border border-white/20 backdrop-blur-md text-[11px] font-medium tracking-[0.2em] uppercase rounded-full shadow-lg">
+                  Sold Out
+                </span>
+              </div>
+            )}
             {currentImage ? (
               <Image 
                 src={currentImage} 
@@ -149,7 +170,7 @@ export default function ProductDetailClient({ product }: { product: any }) {
                 fill 
                 priority 
                 sizes="(max-width: 768px) 100vw, 50vw" 
-                className="object-cover transition-opacity duration-300" 
+                className={`object-cover transition-opacity duration-300 ${isSoldOut ? "opacity-90" : ""}`} 
               />
             ) : (
               <span className="text-muted-foreground/50 font-serif text-lg tracking-widest">Main Image</span>
@@ -197,6 +218,26 @@ export default function ProductDetailClient({ product }: { product: any }) {
 
         {/* Right: Product Details */}
         <div className="flex flex-col pt-2">
+          {/* Stock Status Badge */}
+          <div className="flex items-center gap-2.5 mb-2">
+            {isSoldOut ? (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold tracking-wider uppercase bg-[#1a1614] text-[#f8f5f2] border border-black/10 shadow-sm">
+                <span className="w-1.5 h-1.5 rounded-full bg-rose-400"></span>
+                Sold Out
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-medium tracking-wide bg-emerald-50 text-emerald-800 border border-emerald-200/70">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                In Stock
+              </span>
+            )}
+            {isSoldOut ? (
+              <span className="text-xs text-foreground/60 font-serif italic">This design has found a home</span>
+            ) : product.stockQuantity && product.stockQuantity <= 5 ? (
+              <span className="text-xs text-[#c87355] font-medium">Only {product.stockQuantity} remaining</span>
+            ) : null}
+          </div>
+
           <h1 className="font-serif text-3xl md:text-4xl text-heading mb-4">{product.name}</h1>
           
           <div className="flex items-end gap-4 mb-4">
@@ -242,23 +283,42 @@ export default function ProductDetailClient({ product }: { product: any }) {
           )}
 
           {/* Quantity and Actions */}
-          <div className="flex flex-col sm:flex-row gap-4 mb-12">
-            <div className="flex items-center border border-border rounded-full h-12">
-              <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="px-5 h-full text-foreground hover:text-primary transition-colors">
+          <div className="flex flex-col sm:flex-row gap-4 mb-4">
+            <div className={`flex items-center border border-border rounded-full h-12 ${isSoldOut ? "opacity-40 cursor-not-allowed bg-muted/40" : ""}`}>
+              <button 
+                disabled={isSoldOut}
+                onClick={() => setQuantity(Math.max(1, quantity - 1))} 
+                className="px-5 h-full text-foreground hover:text-primary transition-colors disabled:cursor-not-allowed"
+              >
                 <Minus className="w-4 h-4" />
               </button>
-              <span className="text-sm font-medium w-6 text-center">{quantity}</span>
-              <button onClick={() => setQuantity(quantity + 1)} className="px-5 h-full text-foreground hover:text-primary transition-colors">
+              <span className="text-sm font-medium w-6 text-center">{isSoldOut ? 0 : quantity}</span>
+              <button 
+                disabled={isSoldOut}
+                onClick={() => setQuantity(quantity + 1)} 
+                className="px-5 h-full text-foreground hover:text-primary transition-colors disabled:cursor-not-allowed"
+              >
                 <Plus className="w-4 h-4" />
               </button>
             </div>
             
-            <button 
-              onClick={handleAddToCart}
-              className="flex-1 h-12 bg-primary text-primary-foreground text-xs font-bold tracking-wider rounded-full hover:bg-primary-hover transition-colors uppercase"
-            >
-              Add to Cart
-            </button>
+            {isSoldOut ? (
+              <button 
+                type="button"
+                disabled
+                aria-disabled="true"
+                className="flex-1 h-12 bg-muted/70 text-foreground/45 border border-border/80 text-xs font-bold tracking-wider rounded-full cursor-not-allowed uppercase select-none flex items-center justify-center gap-2"
+              >
+                Sold Out
+              </button>
+            ) : (
+              <button 
+                onClick={handleAddToCart}
+                className="flex-1 h-12 bg-primary text-primary-foreground text-xs font-bold tracking-wider rounded-full hover:bg-primary-hover transition-colors uppercase shadow-sm"
+              >
+                Add to Cart
+              </button>
+            )}
 
             <button
               type="button"
@@ -275,12 +335,26 @@ export default function ProductDetailClient({ product }: { product: any }) {
             </button>
           </div>
 
+          {/* Sold Out Luxury Restock Helper */}
+          {isSoldOut && (
+            <div className="mb-4 p-4 rounded-xl bg-[#eee7e1]/60 border border-border/70 flex flex-col gap-1 text-left">
+              <span className="font-serif text-heading text-xs sm:text-sm font-medium">Piece Currently Unavailable</span>
+              <p className="text-xs text-foreground/75 leading-relaxed">
+                Each muse by Kashish design is produced in exclusive batches. While this piece has sold out, tap below to request a custom remake or discuss similar designs on WhatsApp.
+              </p>
+            </div>
+          )}
+
           <button 
             onClick={handleWhatsAppOrder}
-            className="w-full h-12 bg-[#25D366] text-white text-xs font-bold tracking-wider rounded-full hover:bg-[#128C7E] transition-colors uppercase flex items-center justify-center gap-2 mb-12"
+            className={`w-full h-12 text-xs font-bold tracking-wider rounded-full transition-colors uppercase flex items-center justify-center gap-2 mb-12 shadow-sm ${
+              isSoldOut 
+                ? "bg-[#5f3f33] hover:bg-[#4a3026] text-white" 
+                : "bg-[#25D366] hover:bg-[#128C7E] text-white"
+            }`}
           >
             <MessageCircle className="w-4 h-4" />
-            Order on WhatsApp
+            {isSoldOut ? "Enquire / Request Restock on WhatsApp" : "Order on WhatsApp"}
           </button>
 
           {/* Accordions */}

@@ -28,6 +28,8 @@ export default async function ShopPage({ params }: { params: Promise<{ slug?: st
       images: (Array.isArray(p.gallery_images) && p.gallery_images.length > 0)
         ? p.gallery_images
         : (p.cover_image ? [p.cover_image] : []),
+      inStock: (p.stock_quantity ?? 0) > 0,
+      stockQuantity: p.stock_quantity ?? 0,
       categorySlugs: pCats.map((c: any) => c?.slug).filter(Boolean),
       subcategorySlugs: pSubcats.map((s: any) => s?.slug).filter(Boolean),
     };
@@ -50,16 +52,20 @@ export default async function ShopPage({ params }: { params: Promise<{ slug?: st
   const categoriesList = categoriesData.map((c: any) => ({
     name: c.name === "GenZ Jewelry" ? "GenZ Jewellry" : c.name,
     slug: c.slug,
-    subcategories: subcategoriesData?.filter((sub: any) => sub.category_id === c.id).map((sub: any) => ({
-      name: sub.name,
-      slug: sub.slug
-    })) || []
+    display_order: c.display_order ?? 99,
+    subcategories: (subcategoriesData?.filter((sub: any) => sub.category_id === c.id) || [])
+      .sort((a: any, b: any) => (a.display_order ?? 99) - (b.display_order ?? 99))
+      .map((sub: any) => ({
+        name: sub.name,
+        slug: sub.slug
+      }))
   }));
 
-  const categories = [{ name: "All", slug: "all", subcategories: [] }, ...categoriesList].sort((a, b) => {
-    const orderA = categoryOrderMap[a.slug.toLowerCase()] ?? 99;
-    const orderB = categoryOrderMap[b.slug.toLowerCase()] ?? 99;
-    return orderA - orderB;
+  const categories = [{ name: "All", slug: "all", display_order: 0, subcategories: [] }, ...categoriesList].sort((a, b) => {
+    const orderA = categoryOrderMap[a.slug.toLowerCase()] ?? (a.display_order ?? 99);
+    const orderB = categoryOrderMap[b.slug.toLowerCase()] ?? (b.display_order ?? 99);
+    if (orderA !== orderB) return orderA - orderB;
+    return (a.display_order ?? 99) - (b.display_order ?? 99);
   });
 
   return (

@@ -530,8 +530,40 @@ export default function ProductForm({ initialData, productType = 'jewelry' }: Pr
               <input required name="sku" value={formData.sku} onChange={handleChange} className="w-full px-4 py-2 bg-background border border-border rounded-md" />
             </div>
             <div>
-              <label className="block text-xs font-bold text-heading uppercase tracking-wider mb-2">Stock Qty</label>
-              <input required type="number" name="stock_quantity" value={formData.stock_quantity} onChange={handleChange} className="w-full px-4 py-2 bg-background border border-border rounded-md" />
+              <div className="flex justify-between items-center mb-2">
+                <label className="block text-xs font-bold text-heading uppercase tracking-wider">Stock Qty</label>
+                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                  Number(formData.stock_quantity) > 0 ? "bg-emerald-100 text-emerald-800" : "bg-rose-100 text-rose-800"
+                }`}>
+                  {Number(formData.stock_quantity) > 0 ? "In Stock" : "Sold Out"}
+                </span>
+              </div>
+              <div className="flex gap-2">
+                <input 
+                  required 
+                  type="number" 
+                  min="0"
+                  name="stock_quantity" 
+                  value={formData.stock_quantity} 
+                  onChange={handleChange} 
+                  className="w-full px-4 py-2 bg-background border border-border rounded-md" 
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    const newQty = Number(formData.stock_quantity) > 0 ? 0 : 1;
+                    setFormData(prev => ({ ...prev, stock_quantity: newQty }));
+                    toast.success(newQty === 0 ? "Stock set to 0 (Marked as Sold Out)" : "Stock set to 1 (Marked as In Stock)");
+                  }}
+                  className={`px-3 py-2 text-xs font-semibold rounded-md border whitespace-nowrap transition-colors ${
+                    Number(formData.stock_quantity) > 0
+                      ? "border-rose-300 text-rose-700 hover:bg-rose-50"
+                      : "border-emerald-300 text-emerald-700 hover:bg-emerald-50"
+                  }`}
+                >
+                  {Number(formData.stock_quantity) > 0 ? "Mark Sold Out" : "Mark In Stock"}
+                </button>
+              </div>
             </div>
           </div>
         </div>

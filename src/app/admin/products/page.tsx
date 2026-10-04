@@ -5,11 +5,13 @@ import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
 import Image from "next/image";
 import { Plus, Edit, Trash2, Search, MoreVertical, Package } from "lucide-react";
+import toast from "@/lib/toast";
 
 export default function AdminProductsPage() {
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [updatingStockId, setUpdatingStockId] = useState<string | null>(null);
   const supabase = createClient();
 
   useEffect(() => {
@@ -34,6 +36,27 @@ export default function AdminProductsPage() {
     if (confirm("Are you sure you want to delete this product?")) {
       await supabase.from('products').delete().eq('id', id);
       fetchProducts();
+    }
+  };
+
+  const handleToggleStock = async (id: string, currentStock: number) => {
+    const newStock = (currentStock ?? 0) > 0 ? 0 : 1;
+    setUpdatingStockId(id);
+    const { error } = await supabase
+      .from('products')
+      .update({ stock_quantity: newStock })
+      .eq('id', id);
+
+    setUpdatingStockId(null);
+    if (error) {
+      toast.error("Failed to update stock: " + error.message);
+    } else {
+      toast.success(
+        newStock === 0 
+          ? "Marked as Out of Stock / Sold Out!" 
+          : "Marked as In Stock!"
+      );
+      setProducts(prev => prev.map(p => p.id === id ? { ...p, stock_quantity: newStock } : p));
     }
   };
 
@@ -126,7 +149,38 @@ export default function AdminProductsPage() {
                     </td>
                     <td className="px-6 py-4 text-sm text-foreground/70">{product.sku}</td>
                     <td className="px-6 py-4 text-sm font-medium">₹{product.price.toLocaleString('en-IN')}</td>
-                    <td className="px-6 py-4 text-sm text-foreground/70">{product.stock_quantity}</td>
+                    <td className="px-6 py-4">
+                      <div className="flex flex-col gap-1.5 items-start">
+                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold tracking-wide ${
+                          (product.stock_quantity ?? 0) > 0
+                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                            : 'bg-rose-50 text-rose-700 border border-rose-200'
+                        }`}>
+                          <span className={`w-1.5 h-1.5 rounded-full ${
+                            (product.stock_quantity ?? 0) > 0 ? 'bg-emerald-500' : 'bg-rose-500'
+                          }`}></span>
+                          {(product.stock_quantity ?? 0) > 0 ? `In Stock (${product.stock_quantity})` : 'Sold Out (0)'}
+                        </span>
+
+                        <button
+                          type="button"
+                          disabled={updatingStockId === product.id}
+                          onClick={() => handleToggleStock(product.id, product.stock_quantity)}
+                          className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded border transition-all ${
+                            (product.stock_quantity ?? 0) > 0
+                              ? 'border-rose-200 text-rose-600 hover:bg-rose-50 hover:border-rose-300'
+                              : 'border-emerald-200 text-emerald-700 hover:bg-emerald-50 hover:border-emerald-300'
+                          } disabled:opacity-50`}
+                          title={(product.stock_quantity ?? 0) > 0 ? "Mark Out of Stock (0)" : "Mark In Stock (1)"}
+                        >
+                          {updatingStockId === product.id
+                            ? "Updating..."
+                            : (product.stock_quantity ?? 0) > 0
+                            ? "Mark Sold Out"
+                            : "Mark In Stock"}
+                        </button>
+                      </div>
+                    </td>
                     <td className="px-6 py-4">
                       <span className={`inline-flex items-center px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
                         product.availability 
