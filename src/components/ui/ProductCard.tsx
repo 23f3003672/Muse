@@ -37,6 +37,7 @@ export default function ProductCard({
   const [mounted, setMounted] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
+  const [hasHovered, setHasHovered] = useState(false);
   const cartStore = useCartStore();
   const wishlistStore = useWishlistStore();
 
@@ -123,7 +124,10 @@ export default function ProductCard({
   return (
     <div 
       className="group relative flex flex-col h-full"
-      onMouseEnter={() => setIsHovered(true)}
+      onMouseEnter={() => {
+        setIsHovered(true);
+        setHasHovered(true);
+      }}
       onMouseLeave={() => {
         setIsHovered(false);
         setCurrentImageIndex(0);
@@ -132,23 +136,28 @@ export default function ProductCard({
       <div className="relative aspect-[4/5] w-full overflow-hidden rounded-md bg-muted shrink-0">
         <Link href={`/product/${slug}`} className="block relative w-full h-full">
           {imageList.length > 0 ? (
-            imageList.map((imgUrl, idx) => (
-              <div
-                key={idx}
-                className={`absolute inset-0 transition-opacity duration-500 ease-in-out ${
-                  idx === currentImageIndex ? "opacity-100 z-[1]" : "opacity-0 pointer-events-none z-0"
-                }`}
-              >
-                <Image 
-                  src={imgUrl} 
-                  alt={`${name} - view ${idx + 1}`} 
-                  fill 
-                  sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw" 
-                  className="object-cover transition-transform duration-500 group-hover:scale-105" 
-                  priority={idx === 0}
-                />
-              </div>
-            ))
+            imageList.map((imgUrl, idx) => {
+              if (idx > 0 && !hasHovered && idx !== currentImageIndex) {
+                return null;
+              }
+              return (
+                <div
+                  key={idx}
+                  className={`absolute inset-0 transition-opacity duration-500 ease-in-out ${
+                    idx === currentImageIndex ? "opacity-100 z-[1]" : "opacity-0 pointer-events-none z-0"
+                  }`}
+                >
+                  <Image 
+                    src={imgUrl} 
+                    alt={`${name} - view ${idx + 1}`} 
+                    fill 
+                    sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw" 
+                    className="object-cover transition-transform duration-500 group-hover:scale-105" 
+                    loading="lazy"
+                  />
+                </div>
+              );
+            })
           ) : (
             <div className="absolute inset-0 bg-muted flex items-center justify-center text-muted-foreground transition-transform duration-500 group-hover:scale-105">
               <span className="text-xs">Image Placeholder</span>
